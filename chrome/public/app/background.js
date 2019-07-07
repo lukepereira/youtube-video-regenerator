@@ -1,4 +1,6 @@
 const ACTIONS = {
+    GET_ACTIONS: "GET_ACTIONS",
+    GET_ACTIONS_SUCCESS: "GET_ACTIONS_SUCCESS",
     TAB_URL_UPDATED: "TAB_URL_UPDATED",
     GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE: "GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE",
     GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS: "GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS",
@@ -14,7 +16,7 @@ const ACTIONS = {
     REDIRECT_TO_URL_ERROR: "REDIRECT_TO_URL_ERROR",
 }
 
-const API_URL = 'http://www.mocky.io/v2/5d2170162f00002101c462a8'
+const API_URL = 'https://us-central1-youtube-tools-245705.cloudfunctions.net/playlist'
 
 const sendMessage = (message) => {
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
@@ -36,6 +38,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 chrome.runtime.onMessage.addListener( (request, sender, sendResponse) => {
     // alert("background action" + request.type)
+    if (request.type === ACTIONS.GET_ACTIONS) {
+        sendMessage({
+            type: ACTIONS.GET_ACTIONS_SUCCESS,
+            payload: {
+                actions: ACTIONS,
+            }
+        })
+    }
+
     if (request.type === ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE) {
         const playlistId = request.payload.playlistId
         chrome.storage.sync.get(

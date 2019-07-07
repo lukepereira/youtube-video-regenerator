@@ -1,20 +1,30 @@
 /*
+
+Video redirection:
 1. Initialize playlist with data
-- Get playlist id from url
-- Check local storage if replacement video data already exists in local storage
-- Create object with urls and index of all deleted/unplayable videos
-- make request to API with JSON
-- store response in local storage
-
+    - Get playlist id from url
+    - Check local storage if replacement video data already exists in local storage
+    - Create object with urls and index of all deleted/unplayable videos
+    - make request to API with JSON
+    - store response in local storage
 2. if current index is an unplayable video, go to url of replacement video
-
 3. if current index is one less than unplayable video, monitor video and redirect to replacment video after it completes
+
+API:
+1. search google with video id for replacement youtube video string
+2. query videos via youtube api
+2. return video id, url, thumbnail url, video title,
+
+UI injection:
+1. replace deleted videos with existing video thumbnail and url and indication of add-on
 
 */
 
 /*global chrome*/
 
-const ACTIONS = {
+let ACTIONS = {
+    GET_ACTIONS: "GET_ACTIONS",
+    GET_ACTIONS_SUCCESS: "GET_ACTIONS_SUCCESS",
     TAB_URL_UPDATED: "TAB_URL_UPDATED",
     GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE: "GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE",
     GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS: "GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS",
@@ -41,7 +51,7 @@ const sendMessage = (message) => {
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    // alert('content_script action ' + request.type)
+    alert('content_script action ' + request.type)
 
     if (request.type === ACTIONS.TAB_URL_UPDATED) {
         runPlaylistScript()
@@ -49,6 +59,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.type === ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS) {
         if (request.payload.playlistData) {
+            alert(JSON.stringify(request.payload.playlistData))
             handleUnplayableVideoRedirect(request.payload.playlistData)
         }
         else {
@@ -63,6 +74,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (request.type === ACTIONS.FETCH_PLAYLIST_DATA_SUCCESS) {
+        alert(JSON.stringify(request.payload.playlistData))
         storePlaylistDataInLocalStorage(request.payload.playlistData)
         handleUnplayableVideoRedirect(request.payload.playlistData)
     }
@@ -85,12 +97,18 @@ const getPlaylistDataFromLocalStorage = (playlistId) => {
 }
 
 const getUnplayableVideoDataFromDOM = () => {
-    return [
-        {
-            url: 'testUrl',
-            index: 2,
+    const unplayableVideoData = []
+    const unplayableVideos = document.querySelectorAll('#unplayableText')
+    unplayableVideos.forEach((unplayabledVideoElement) => {
+        const unplayableVideoUrl = unplayabledVideoElement.closest('a').href
+        const videoData = {
+            url: unplayableVideoUrl,
+            videoId: getUrlParams('v', unplayableVideoUrl),
+            index: getUrlParams('index', unplayableVideoUrl),
         }
-    ]
+        unplayableVideoData.push(videoData)
+    })
+    return unplayableVideoData
 }
 
 const storePlaylistDataInLocalStorage = (playlistData) => {
@@ -158,13 +176,10 @@ const getCurrentVideoId = () => {
     return getUrlParams('v')
 }
 
-const getUrlParams = (parameter) => {
-    const url = window.location.href
+const getUrlParams = (parameter, url=window.location.href) => {
     const vars = {}
     const parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m, key, value) => {
         vars[key] = value;
     })
     return vars[parameter] || ''
 }
-
-

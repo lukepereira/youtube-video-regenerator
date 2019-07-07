@@ -1,0 +1,24 @@
+{
+  "short_name": "YouTube™ Playlist Healer",
+  "name": "YouTube™ Playlist Healer",
+  "version": "1.0",
+  "manifest_version": 2,
+  "background": {
+    "scripts": ["app/background.js"]
+  },
+  "browser_action": {},
+  "content_scripts" : [
+    {
+      "matches": [ "https://www.youtube.com/*" ],
+      "js": ["/static/js/content.js"]
+    }
+  ],
+  "web_accessible_resources":[
+    "/static/css/content.css"
+  ],
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'"
+}

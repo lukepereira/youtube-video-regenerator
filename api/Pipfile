@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-cors = "==3.0.6"
+requests = "*"
+"beautifulsoup4" = "==4.7.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"

@@ -11,9 +11,17 @@ Video redirection:
 3. if current index is one less than unplayable video, monitor video and redirect to replacment video after it completes
 
 API:
+Via Google (less accurate)
 1. search google with video id for replacement youtube video string
 2. query videos via youtube api
 2. return video id, url, thumbnail url, video title,
+
+Via wayback machine (might be slower)
+1. http://archive.org/wayback/available?url=https://www.youtube.com/watch?v=${videoId}
+    (https://archive.org/help/wayback_api.php)
+2. fetch archived_snapshots.closest.url
+3. extract video title from html
+4. query youtube
 
 UI injection:
 1. replace deleted videos with existing video thumbnail and url and indication of add-on
@@ -41,7 +49,7 @@ let ACTIONS = {
 }
 
 window.onload = () => {
-    runPlaylistScript()
+    // runPlaylistScript()
 }
 
 const sendMessage = (message) => {
@@ -74,7 +82,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (request.type === ACTIONS.FETCH_PLAYLIST_DATA_SUCCESS) {
-        alert(JSON.stringify(request.payload.playlistData))
         storePlaylistDataInLocalStorage(request.payload.playlistData)
         handleUnplayableVideoRedirect(request.payload.playlistData)
     }
@@ -98,7 +105,7 @@ const getPlaylistDataFromLocalStorage = (playlistId) => {
 
 const getUnplayableVideoDataFromDOM = () => {
     const unplayableVideoData = []
-    const unplayableVideos = document.querySelectorAll('#unplayableText')
+    const unplayableVideos = document.querySelectorAll('#unplayableText:not([hidden])')
     unplayableVideos.forEach((unplayabledVideoElement) => {
         const unplayableVideoUrl = unplayabledVideoElement.closest('a').href
         const videoData = {

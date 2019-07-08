@@ -1,6 +1,6 @@
 {
-  "short_name": "YouTube™ Playlist Healer",
-  "name": "YouTube™ Playlist Healer",
+  "short_name": "YouTube™ Playlist Regenerator",
+  "name": "YouTube™ Playlist Regenerator",
   "version": "1.0",
   "manifest_version": 2,
   "background": {
@@ -18,7 +18,8 @@
   ],
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "https://us-central1-youtube-tools-245705.cloudfunctions.net/playlist"
   ],
   "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'"
 }

@@ -52,12 +52,22 @@ chrome.runtime.onMessage.addListener( (request, sender, sendResponse) => {
         chrome.storage.sync.get(
             [ playlistId ],
             (result) => {
-                sendMessage({
-                    type: ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS,
-                    payload: {
-                        playlistData: result[playlistId] || null,
-                    }
-                })
+                // TODO check timestamp
+                if (result && result[playlistId]) {
+                    sendMessage({
+                        type: ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS,
+                        payload: {
+                            playlistData: result[playlistId] || null,
+                        }
+                    })
+                }
+                else {
+                    sendMessage({
+                        type: ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_ERROR,
+                        payload: { }
+                    })
+                }
+
             }
         )
     }
@@ -84,6 +94,7 @@ chrome.runtime.onMessage.addListener( (request, sender, sendResponse) => {
     }
 
     if (request.type === ACTIONS.STORE_PLAYLIST_DATA) {
+        //TODO: store timestamp and calculate expiration of 1 hour
         const playlistId = request.payload.playlistId
         const playlistData = request.payload.playlistData
         chrome.storage.sync.set({

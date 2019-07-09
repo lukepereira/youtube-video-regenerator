@@ -66,19 +66,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (request.type === ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS) {
-        if (request.payload.playlistData) {
-            alert(JSON.stringify(request.payload.playlistData))
-            handleUnplayableVideoRedirect(request.payload.playlistData)
+        handleUnplayableVideoRedirect(request.payload.playlistData)
+    }
+
+    if (request.type === ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_ERROR) {
+        const unplayableVideoData = getUnplayableVideoDataFromDOM()
+        if (!unplayableVideoData.length) {
+            return
         }
-        else {
-            const unplayableVideoData = getUnplayableVideoDataFromDOM()
-            sendMessage({
-                type: ACTIONS.FETCH_PLAYLIST_DATA,
-                payload: {
-                    unplayableVideoData,
-                },
-            })
-        }
+        // TODO: split these messages into chunks of 10 to prevent timeouts
+        sendMessage({
+            type: ACTIONS.FETCH_PLAYLIST_DATA,
+            payload: {
+                unplayableVideoData,
+            },
+        })
     }
 
     if (request.type === ACTIONS.FETCH_PLAYLIST_DATA_SUCCESS) {

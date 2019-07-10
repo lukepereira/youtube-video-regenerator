@@ -1,4 +1,5 @@
-const ACTIONS = {
+const ACTIONS = Object.freeze({
+    CLICKED_BROWSER_ACTION: "CLICKED_BROWSER_ACTION",
     GET_ACTIONS: "GET_ACTIONS",
     GET_ACTIONS_SUCCESS: "GET_ACTIONS_SUCCESS",
     TAB_URL_UPDATED: "TAB_URL_UPDATED",
@@ -14,7 +15,7 @@ const ACTIONS = {
     REDIRECT_TO_URL: "REDIRECT_TO_URL",
     REDIRECT_TO_URL_SUCCESS: "REDIRECT_TO_URL_SUCCESS",
     REDIRECT_TO_URL_ERROR: "REDIRECT_TO_URL_ERROR",
-}
+})
 
 const API_URL = 'https://us-central1-youtube-tools-245705.cloudfunctions.net/playlist'
 
@@ -35,6 +36,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         })
     }
 })
+
+chrome.browserAction.onClicked.addListener(function(tab) {
+    sendMessage({
+        type: ACTIONS.CLICKED_BROWSER_ACTION,
+        payload: {},
+    })
+ });
 
 chrome.runtime.onMessage.addListener( (request, sender, sendResponse) => {
     // alert("background action" + request.type)
@@ -57,7 +65,7 @@ chrome.runtime.onMessage.addListener( (request, sender, sendResponse) => {
                     sendMessage({
                         type: ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS,
                         payload: {
-                            playlistData: result[playlistId] || null,
+                            playlistData: result[playlistId],
                         }
                     })
                 }
@@ -96,15 +104,28 @@ chrome.runtime.onMessage.addListener( (request, sender, sendResponse) => {
     if (request.type === ACTIONS.STORE_PLAYLIST_DATA) {
         //TODO: store timestamp and calculate expiration of 1 hour
         const playlistId = request.payload.playlistId
-        const playlistData = request.payload.playlistData
-        chrome.storage.sync.set({
-            [playlistId]: playlistData,
-        }, () => {
-            sendMessage({
-                type: ACTIONS.STORE_PLAYLIST_DATA_SUCCESS,
-                payload: { playlistData },
-            })
-         })
+        const newPlaylistData = request.payload.playlistData
+        chrome.storage.sync.get(
+            [ playlistId ],
+            (result) => {
+                const existingData = result[playlistId]
+                const mergedData = {
+                    ...existingData,
+                    ...newPlaylistData,
+                }
+                chrome.storage.sync.set({
+                    [playlistId]: mergedData,
+                }, () => {
+                    sendMessage({
+                        type: ACTIONS.STORE_PLAYLIST_DATA_SUCCESS,
+                        payload: {
+                            playlistData: mergedData,
+                        },
+                    })
+                 })
+
+            }
+        )
     }
 
     if (request.type === ACTIONS.REDIRECT_TO_URL) {

@@ -31,7 +31,7 @@ def get_archived_video_title(archived_url):
 
 def search_for_replacement_video(archived_video_title , api_key):
     query = urllib.parse.quote_plus(archived_video_title)
-    youtube_search_url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&key={api_key}&type=video'.format(
+    youtube_search_url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&key={api_key}&type=video&maxResults=1'.format(
         query=query,
         api_key=api_key,
     )

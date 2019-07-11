@@ -38,4 +38,39 @@ def search_for_replacement_video(archived_video_title , api_key):
     response = requests.get(url=youtube_search_url)
     response_json = response.json()
     if 'items' in response_json:
-        return response_json['items']
+        return serialize_youtube_response(response_json['items'])
+
+
+def get_video_title(video_data):
+    try:
+        return video_data['snippet']['title']
+    except KeyError:
+        return ''
+
+
+def get_video_id(video_data):
+    try:
+        return video_data['id']['videoId']
+    except KeyError:
+        return ''
+
+
+def get_thumbnail_url(video_data):
+    try:
+        return video_data['snippet']['thumbnails']['high']['url']
+    except KeyError:
+        return ''
+
+
+def serialize_youtube_response(response):
+    formatted_response = []
+    for video_data in response:
+        formatted_response.append(
+            {
+                'title': get_video_title(video_data),
+                'videoId': get_video_id(video_data),
+                'thumbnailUrl': get_thumbnail_url(video_data),
+            }
+        )
+
+    return formatted_response

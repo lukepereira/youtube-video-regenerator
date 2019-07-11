@@ -47,12 +47,15 @@ window.onload = () => {
 
 const sendMessage = (message) => {
     chrome.runtime.sendMessage(
-        message
+        {
+            ...message,
+            actions: ACTIONS,
+        }
     )
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    alert('content_script action ' + request.type)
+    alert('content_script action ' + request.type, request.payload)
 
     if (request.type === ACTIONS.CLICKED_BROWSER_ACTION) {
         runPlaylistScript()
@@ -179,22 +182,24 @@ const handleUnplayableVideoDomUpdates = (playlistData) => {
         const replacementVideoIndex = parseInt(playlistIndex)
         const replacementVideoData = playlistData[playlistIndex][0]
 
-        const title = replacementVideoData.snippet.title
-        const thumbnailUrl = replacementVideoData.snippet.thumbnails.high.url
-        const url = `/watch?v=${replacementVideoData.id.videoId}&list=${getPlaylistId()}&index=${replacementVideoIndex}`
+        const title = replacementVideoData.title
+        const thumbnailUrl = replacementVideoData.thumbnailUrl
+        const url = `/watch?v=${replacementVideoData.videoId}&list=${getPlaylistId()}&index=${replacementVideoIndex}`
 
         const unplayableVideoElement = document.querySelectorAll('span#index')[replacementVideoIndex - 1]
         const container = unplayableVideoElement.closest('div#container')
         container.style = 'border:1px solid green'
         container.closest('a').href = url
+        container.querySelector('a#thumbnail').href = url
         container.querySelector('img#img').src = thumbnailUrl
+        container.querySelector('img#img').style = 'visibility:unset'
         container.querySelector('span#video-title').innerText = title
         container.querySelector('#unplayableText').style = 'display:none'
     })
 }
 
 const getReplacementVideoRedirectURL = (replacementVideoData, index) => {
-    const videoId = replacementVideoData.id.videoId
+    const videoId = replacementVideoData.videoId
     const playlistId = getPlaylistId()
     return`https://www.youtube.com/watch?v=${videoId}&list=${playlistId}&index=${index}`
 }

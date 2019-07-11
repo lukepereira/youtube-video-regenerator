@@ -1,4 +1,4 @@
-const ACTIONS = Object.freeze({
+const BACKGROUND_ACTIONS = Object.freeze({
     CLICKED_BROWSER_ACTION: "CLICKED_BROWSER_ACTION",
     TAB_URL_UPDATED: "TAB_URL_UPDATED",
 })
@@ -17,15 +17,16 @@ const sendMessage = (message) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete') {
         sendMessage({
-            type: ACTIONS.TAB_URL_UPDATED,
+            type: BACKGROUND_ACTIONS.TAB_URL_UPDATED,
             payload: { tabId, changeInfo, tab },
         })
     }
 })
 
 chrome.browserAction.onClicked.addListener((tab) => {
+    // chrome.storage.local.clear()
     sendMessage({
-        type: ACTIONS.CLICKED_BROWSER_ACTION,
+        type: BACKGROUND_ACTIONS.CLICKED_BROWSER_ACTION,
         payload: {},
     })
  })
@@ -33,12 +34,15 @@ chrome.browserAction.onClicked.addListener((tab) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const actions = request.actions
     const type = request.type
-    alert("background action" + type, actions, request.payload )
+
+    if (actions.DEBUG) {
+        alert('background action ' + type + ' ' + JSON.stringify(request.payload))
+    }
 
     if (type === actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE) {
         const playlistId = request.payload.playlistId
-        chrome.storage.sync.get(
-            [ playlistId ],
+        chrome.storage.local.get(
+            [playlistId],
             (result) => {
                 // TODO check timestamp
                 if (result && result[playlistId]) {
@@ -85,7 +89,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         //TODO: store timestamp and calculate expiration of 1 hour
         const playlistId = request.payload.playlistId
         const newPlaylistData = request.payload.playlistData
-        chrome.storage.sync.get(
+        console.log("^^^^", playlistId, newPlaylistData)
+        chrome.storage.local.get(
             [ playlistId ],
             (result) => {
                 const existingData = result[playlistId]
@@ -93,7 +98,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     ...existingData,
                     ...newPlaylistData,
                 }
-                chrome.storage.sync.set({
+                chrome.storage.local.set({
                     [playlistId]: mergedData,
                 }, () => {
                     sendMessage({

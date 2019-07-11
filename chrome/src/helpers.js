@@ -17,3 +17,16 @@ export const getUrlParams = (parameter, url=window.location.href) => {
     })
     return vars[parameter] || ''
 }
+
+
+export const convertArrayToChunks = (list, chunkSize=10) => {
+    if (!list.length) {
+        return []
+    }
+    var i, j, t, chunks = []
+    for (i = 0, j = list.length; i < j; i += chunkSize) {
+        t = list.slice(i, i + chunkSize)
+        chunks.push(t)
+    }
+    return chunks
+}

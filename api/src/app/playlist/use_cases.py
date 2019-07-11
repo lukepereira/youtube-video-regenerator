@@ -1,3 +1,4 @@
+import html
 import urllib
 
 import requests
@@ -19,6 +20,7 @@ def get_archived_url(unplayable_video_data):
     except KeyError:
         return None
 
+
 def get_archived_video_title(archived_url):
     response = requests.get(url=archived_url)
     content = response.content
@@ -29,7 +31,31 @@ def get_archived_video_title(archived_url):
     return title
 
 
-def search_for_replacement_video(archived_video_title , api_key):
+def search_for_replacement_video(archived_video_title):
+    query = urllib.parse.quote_plus(archived_video_title)
+    youtube_search_url = 'https://www.youtube.com/results?search_query={query}'.format(
+        query=query,
+    )
+    response = requests.get(url=youtube_search_url)
+    content = response.content
+    soup = BeautifulSoup(content, features="html.parser")
+    try:
+        result_container = soup.select('div#results')[0].select('ol[class="item-section"]')[0]
+        first_result = result_container.select('li')[0]
+        video_id = first_result.select('div')[0]['data-context-item-id']
+        return {
+            'title': archived_video_title,
+            'videoId': video_id,
+            'thumbnailUrl': 'https://i.ytimg.com/vi/{video_id}/hqdefault.jpg'.format(
+                video_id=video_id,
+            )
+        }
+    except KeyError:
+        return {}
+
+
+
+def search_for_replacement_video_using_api(archived_video_title , api_key):
     query = urllib.parse.quote_plus(archived_video_title)
     youtube_search_url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&key={api_key}&type=video&maxResults=1'.format(
         query=query,
@@ -67,7 +93,7 @@ def serialize_youtube_response(response):
     for video_data in response:
         formatted_response.append(
             {
-                'title': get_video_title(video_data),
+                'title': html.unescape(get_video_title(video_data)),
                 'videoId': get_video_id(video_data),
                 'thumbnailUrl': get_thumbnail_url(video_data),
             }

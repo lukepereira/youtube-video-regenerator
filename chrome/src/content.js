@@ -41,21 +41,27 @@ import {
     ACTIONS
 } from './actions'
 
-window.onload = () => {
-    // runPlaylistScript()
-}
+import {
+    getPlaylistDataFromApi,
+    getPlaylistDataFromLocalStorage,
+    storePlaylistDataInLocalStorage,
+    redirectToReplacementVideo,
+} from './messages'
 
-const sendMessage = (message) => {
-    chrome.runtime.sendMessage(
-        {
-            ...message,
-            actions: ACTIONS,
-        }
-    )
+
+const runPlaylistScript = () => {
+    const playlistId = getPlaylistId()
+    if (!playlistId) {
+        return
+    }
+    //TODO: wait for playlist elements to load on dom
+    getPlaylistDataFromLocalStorage(playlistId)
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    alert('content_script action ' + request.type, request.payload)
+    if (ACTIONS.debug) {
+        alert('content_script action ' + request.type, request.payload)
+    }
 
     if (request.type === ACTIONS.CLICKED_BROWSER_ACTION) {
         runPlaylistScript()
@@ -75,42 +81,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (!unplayableVideoData.length) {
             return
         }
-        // TODO: split these messages into chunks of 10 to prevent timeouts
         const chunks = convertArrayToChunks(unplayableVideoData, 5)
-        chunks.forEach((messageChunk) => {
-            sendMessage({
-                type: ACTIONS.FETCH_PLAYLIST_DATA,
-                payload: {
-                    unplayableVideoData: messageChunk,
-                },
-            })
-        })
+        chunks.forEach((messageChunk) => getPlaylistDataFromApi(messageChunk))
     }
 
     if (request.type === ACTIONS.FETCH_PLAYLIST_DATA_SUCCESS) {
-        storePlaylistDataInLocalStorage(request.payload.playlistData)
+        storePlaylistDataInLocalStorage(getPlaylistId(), request.payload.playlistData)
         handleUnplayableVideoRedirect(request.payload.playlistData)
         handleUnplayableVideoDomUpdates(request.payload.playlistData)
     }
 })
 
-const runPlaylistScript = () => {
-    const playlistId = getPlaylistId()
-    if (!playlistId) {
-        return
-    }
-    //TODO: wait for playlist elements to load on dom
-    getPlaylistDataFromLocalStorage(playlistId)
-}
-
-const getPlaylistDataFromLocalStorage = (playlistId) => {
-    sendMessage({
-        type: ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE,
-        payload: {
-            playlistId,
-        },
-    })
-}
 
 const getUnplayableVideoDataFromDOM = () => {
     const unplayableVideoData = []
@@ -139,40 +120,38 @@ const convertArrayToChunks = (list, chunkSize=10) => {
     return chunks
 }
 
-const storePlaylistDataInLocalStorage = (playlistData) => {
-    sendMessage({
-        type: ACTIONS.STORE_PLAYLIST_DATA,
-        payload: {
-            playlistData,
-            playlistId: getPlaylistId(),
-        },
-    })
+const getReplacementVideoRedirectURL = (replacementVideoData, index) => {
+    const videoId = replacementVideoData.videoId
+    const playlistId = getPlaylistId()
+    return`https://www.youtube.com/watch?v=${videoId}&list=${playlistId}&index=${index}`
 }
 
 const handleUnplayableVideoRedirect = (playlistData) => {
     const currentIndex = getCurrentIndex()
     Object.keys(playlistData).forEach((playlistIndex) => {
-
         const replacementVideoIndex = parseInt(playlistIndex)
         const replacementVideoData = playlistData[replacementVideoIndex]
+        const replacementVideoRedirectURL = getReplacementVideoRedirectURL(
+            replacementVideoData,
+            replacementVideoIndex
+        )
 
         if (
             currentIndex === replacementVideoIndex &&
             replacementVideoData.videoId !== getCurrentVideoId()
         ) {
-            redirectToReplacementVideo(replacementVideoData)
+            redirectToReplacementVideo(replacementVideoRedirectURL)
         }
         if (currentIndex + 1 === replacementVideoIndex) {
-            const replacementVideoRedirectURL = getReplacementVideoRedirectURL(
-                replacementVideoData[0],
-                replacementVideoIndex
-            )
             const video = document.querySelector('video')
-            video.addEventListener('timeupdate', (event) => {
-                if (event.target.currentTime + 5 >= event.target.duration) {
+
+            const handleRedirectEventListener = (event) => {
+                if (event.target.currentTime + 3 >= event.target.duration) {
                     redirectToReplacementVideo(replacementVideoRedirectURL)
+                    video.removeEventListener('timeupdate', handleRedirectEventListener)
                 }
-            })
+            }
+            video.addEventListener('timeupdate', handleRedirectEventListener)
         }
     })
 }
@@ -180,7 +159,7 @@ const handleUnplayableVideoRedirect = (playlistData) => {
 const handleUnplayableVideoDomUpdates = (playlistData) => {
     Object.keys(playlistData).forEach((playlistIndex) => {
         const replacementVideoIndex = parseInt(playlistIndex)
-        const replacementVideoData = playlistData[playlistIndex][0]
+        const replacementVideoData = playlistData[playlistIndex]
 
         const title = replacementVideoData.title
         const thumbnailUrl = replacementVideoData.thumbnailUrl
@@ -195,20 +174,5 @@ const handleUnplayableVideoDomUpdates = (playlistData) => {
         container.querySelector('img#img').style = 'visibility:unset'
         container.querySelector('span#video-title').innerText = title
         container.querySelector('#unplayableText').style = 'display:none'
-    })
-}
-
-const getReplacementVideoRedirectURL = (replacementVideoData, index) => {
-    const videoId = replacementVideoData.videoId
-    const playlistId = getPlaylistId()
-    return`https://www.youtube.com/watch?v=${videoId}&list=${playlistId}&index=${index}`
-}
-
-const redirectToReplacementVideo = (url) => {
-    sendMessage({
-        type: ACTIONS.REDIRECT_TO_URL,
-        payload: {
-            url,
-        },
     })
 }

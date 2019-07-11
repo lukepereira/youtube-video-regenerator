@@ -17,7 +17,6 @@ def get_playlist_replacement_data(unplayable_video_data_array, youtube_api_key):
 
         replacement_video_data = use_cases.search_for_replacement_video(
             archived_video_title,
-            youtube_api_key,
         )
         print('replacement_video_data')
         print(replacement_video_data)

@@ -54,6 +54,9 @@ const runPlaylistScript = () => {
     if (!playlistId) {
         return
     }
+    if (!window.location.pathname.split('/')[1] === 'watch')  {
+        return
+    }
     //TODO: wait for playlist elements to load on dom
     getPlaylistDataFromLocalStorage(playlistId)
 }
@@ -170,8 +173,9 @@ const handleUnplayableVideoDomUpdates = (playlistData) => {
         container.style = 'border:1px solid green'
         container.closest('a').href = url
         container.querySelector('a#thumbnail').href = url
-        container.querySelector('img#img').src = thumbnailUrl
-        container.querySelector('img#img').style = 'visibility:unset'
+        container.querySelector('img#img').parentElement.style = `background: url("${thumbnailUrl}"); height: 100%; width: 100%; background-size: cover;background-position: center;`
+        container.querySelector('img#img').style = `display:none`
+
         container.querySelector('span#video-title').innerText = title
         container.querySelector('#unplayableText').style = 'display:none'
     })

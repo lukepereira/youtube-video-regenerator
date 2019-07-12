@@ -89,7 +89,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         //TODO: store timestamp and calculate expiration of 1 hour
         const playlistId = request.payload.playlistId
         const newPlaylistData = request.payload.playlistData
-        console.log("^^^^", playlistId, newPlaylistData)
         chrome.storage.local.get(
             [ playlistId ],
             (result) => {

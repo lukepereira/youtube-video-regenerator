@@ -4,4 +4,6 @@ deploy:
 
 .PHONY: deploy
 deploy:
-	gcloud functions deploy playlist --runtime python37 --trigger-http --source=./src
+	#gcloud functions deploy playlist --runtime python37 --trigger-http --source=./src
+	gcloud functions deploy archive_search --runtime python37 --trigger-http --source=./src
+	gcloud functions deploy web_search --runtime python37 --trigger-http --source=./src

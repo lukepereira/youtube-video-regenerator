@@ -88,14 +88,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (type === actions.STORE_PLAYLIST_DATA) {
-        //TODO: store timestamp and calculate expiration of 1 hour
+        //TODO: store timestamp and calculate expiration of 3 hour
         const playlistId = request.payload.playlistId
         const newPlaylistData = request.payload.playlistData
         chrome.storage.local.get([playlistId], result => {
             const existingData = result[playlistId]
+            const existingFound = (existingData && existingData.found) || {}
+            const existingNotFound =
+                (existingData && existingData.not_found) || {}
             const mergedData = {
-                ...existingData,
-                ...newPlaylistData,
+                found: {
+                    ...existingFound,
+                    ...newPlaylistData.found,
+                },
+                not_found: {
+                    ...existingNotFound,
+                    ...newPlaylistData.not_found,
+                },
             }
             chrome.storage.local.set(
                 {

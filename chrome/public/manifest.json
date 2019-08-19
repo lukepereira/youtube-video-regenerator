@@ -1,25 +1,23 @@
 {
-  "short_name": "YouTube™ Playlist Regenerator",
-  "name": "YouTube™ Playlist Regenerator",
-  "version": "1.0",
-  "manifest_version": 2,
-  "background": {
-    "scripts": ["app/background.js"]
-  },
-  "browser_action": {},
-  "content_scripts" : [
-    {
-      "matches": [ "https://www.youtube.com/watch*" ],
-      "js": ["/static/js/content.js"]
-    }
-  ],
-  "web_accessible_resources":[
-    "/static/css/content.css"
-  ],
-  "permissions": [
-    "storage",
-    "tabs",
-    "https://us-central1-youtube-tools-245705.cloudfunctions.net/playlist"
-  ],
-  "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'"
+    "short_name": "YouTube™ Playlist Regenerator",
+    "name": "YouTube™ Playlist Regenerator",
+    "version": "1.0",
+    "manifest_version": 2,
+    "background": {
+        "scripts": ["app/background.js"]
+    },
+    "browser_action": {},
+    "content_scripts": [
+        {
+            "matches": ["https://www.youtube.com/*"],
+            "js": ["/static/js/content.js"]
+        }
+    ],
+    "web_accessible_resources": ["/static/css/content.css"],
+    "permissions": [
+        "storage",
+        "tabs",
+        "https://us-central1-youtube-tools-245705.cloudfunctions.net/*"
+    ],
+    "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'"
 }

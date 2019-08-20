@@ -1,7 +1,7 @@
 {
     "short_name": "YouTube™ Playlist Regenerator",
     "name": "YouTube™ Playlist Regenerator",
-    "version": "1.0",
+    "version": "0.0.1",
     "manifest_version": 2,
     "background": {
         "scripts": ["app/background.js"]

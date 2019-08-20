@@ -10,13 +10,17 @@ const API_ENDPOINTS = Object.freeze({
     webSearch: 'web_search',
 })
 
-const sendMessage = message => {
-    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-        var activeTab = tabs && tabs[0]
-        if (activeTab) {
-            chrome.tabs.sendMessage(activeTab.id, message)
-        }
-    })
+const sendMessage = (message, tabId) => {
+    if (tabId) {
+        chrome.tabs.sendMessage(tabId, message)
+    } else {
+        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+            var activeTab = tabs && tabs[0]
+            if (activeTab) {
+                chrome.tabs.sendMessage(activeTab.id, message)
+            }
+        })
+    }
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -39,6 +43,7 @@ chrome.browserAction.onClicked.addListener(tab => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const actions = request.actions
     const type = request.type
+    const tabId = sender.tab.id
 
     if (actions.DEBUG) {
         alert(
@@ -51,17 +56,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         chrome.storage.local.get([playlistId], result => {
             // TODO check timestamp
             if (result && result[playlistId]) {
-                sendMessage({
-                    type: actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS,
-                    payload: {
-                        playlistData: result[playlistId],
+                sendMessage(
+                    {
+                        type:
+                            actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_SUCCESS,
+
+                        payload: {
+                            playlistData: result[playlistId],
+                        },
                     },
-                })
+                    tabId,
+                )
             } else {
-                sendMessage({
-                    type: actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_ERROR,
-                    payload: {},
-                })
+                sendMessage(
+                    {
+                        type:
+                            actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_ERROR,
+                        payload: {},
+                    },
+                    tabId,
+                )
             }
         })
     }
@@ -77,12 +91,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         })
             .then(response => response.json())
             .then(response =>
-                sendMessage({
-                    type: actions.FETCH_ARCHIVED_PLAYLIST_DATA_SUCCESS,
-                    payload: {
-                        playlistData: response,
+                sendMessage(
+                    {
+                        type: actions.FETCH_ARCHIVED_PLAYLIST_DATA_SUCCESS,
+                        payload: {
+                            playlistData: response,
+                        },
                     },
-                }),
+                    tabId,
+                ),
             )
             .catch()
     }
@@ -98,12 +115,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         })
             .then(response => response.json())
             .then(response =>
-                sendMessage({
-                    type: actions.FETCH_WEB_SEARCHED_PLAYLIST_DATA_SUCCESS,
-                    payload: {
-                        playlistData: response,
+                sendMessage(
+                    {
+                        type: actions.FETCH_WEB_SEARCHED_PLAYLIST_DATA_SUCCESS,
+                        payload: {
+                            playlistData: response,
+                        },
                     },
-                }),
+                    tabId,
+                ),
             )
             .catch()
     }
@@ -133,12 +153,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     [playlistId]: mergedData,
                 },
                 () => {
-                    sendMessage({
-                        type: actions.STORE_PLAYLIST_DATA_SUCCESS,
-                        payload: {
-                            playlistData: mergedData,
+                    sendMessage(
+                        {
+                            type: actions.STORE_PLAYLIST_DATA_SUCCESS,
+                            payload: {
+                                playlistData: mergedData,
+                            },
                         },
-                    })
+                        tabId,
+                    )
                 },
             )
         })

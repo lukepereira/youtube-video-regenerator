@@ -78,6 +78,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 },
             )
             getPlaylistDataFromWebSearchApi(unplayableVideoData)
+
+            storePlaylistDataInLocalStorage(playlistId, {
+                found: request.payload.playlistData.found,
+                not_found: {},
+            })
         } else {
             storePlaylistDataInLocalStorage(
                 playlistId,

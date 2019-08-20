@@ -29,7 +29,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 })
 
 chrome.browserAction.onClicked.addListener(tab => {
-    // chrome.storage.local.clear()
+    chrome.storage.local.clear()
     sendMessage({
         type: BACKGROUND_ACTIONS.CLICKED_BROWSER_ACTION,
         payload: {},
@@ -66,7 +66,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         })
     }
 
-    if (type === actions.FETCH_PLAYLIST_DATA) {
+    if (type === actions.FETCH_ARCHIVED_PLAYLIST_DATA) {
         fetch(`${API_URL}${API_ENDPOINTS.archiveSearch}`, {
             method: 'POST',
             headers: {
@@ -78,7 +78,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             .then(response => response.json())
             .then(response =>
                 sendMessage({
-                    type: actions.FETCH_PLAYLIST_DATA_SUCCESS,
+                    type: actions.FETCH_ARCHIVED_PLAYLIST_DATA_SUCCESS,
+                    payload: {
+                        playlistData: response,
+                    },
+                }),
+            )
+            .catch()
+    }
+
+    if (type === actions.FETCH_WEB_SEARCHED_PLAYLIST_DATA) {
+        fetch(`${API_URL}${API_ENDPOINTS.webSearch}`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request.payload.unplayableVideoData),
+        })
+            .then(response => response.json())
+            .then(response =>
+                sendMessage({
+                    type: actions.FETCH_WEB_SEARCHED_PLAYLIST_DATA_SUCCESS,
                     payload: {
                         playlistData: response,
                     },
@@ -89,6 +110,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (type === actions.STORE_PLAYLIST_DATA) {
         //TODO: store timestamp and calculate expiration of 3 hour
+        //TODO: remove key from not_found if it appears in found
         const playlistId = request.payload.playlistId
         const newPlaylistData = request.payload.playlistData
         chrome.storage.local.get([playlistId], result => {

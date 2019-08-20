@@ -45,8 +45,8 @@ def low_confidence_attempt(unplayable_video_data):
     soup = BeautifulSoup(content, features="html.parser")
     result_elements = soup.select('div#main')[0].find_all(recursive=False)[3: 3 + number_of_results]
 
-    for result in result_elements:
-        result.find('a').decompose()
+    # for result in result_elements:
+    #     result.find('a').decompose()
 
     result_text = [ result.text for result in result_elements ]
     clean_result_text = [ re.sub(r'http\S+', '', result) for result in result_text ]
@@ -65,12 +65,6 @@ def longest_common_substring(data):
 
 
 def get_search_string(array_of_sentences):
-    #1. split video data strings in arrays of words i.e: [v1_w1, v1_w2]
-    #2. create nested array of pairs of video data word arrays ie: [ [v1_w1], [v2_w2] ]
-    #3. iterate over video 1 data words, find position in video 2 data words
-    #4. if it's found, store in local keep array, continue to next word in video 1 data words
-    #5. if it's not found, compare length to global keep array, store in global if longer, else throw away
-
     array_of_words = [ sentence.split(' ') for sentence in array_of_sentences ]
     pairs_of_word_arrays = [ result for result in itertools.combinations(array_of_words, 2) ]
     global_keep = []

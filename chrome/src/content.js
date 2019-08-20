@@ -10,7 +10,8 @@ import {
 import { ACTIONS } from './actions'
 
 import {
-    getPlaylistDataFromApi,
+    getPlaylistDataFromArchiveApi,
+    getPlaylistDataFromWebSearchApi,
     getPlaylistDataFromLocalStorage,
     storePlaylistDataInLocalStorage,
     redirectToReplacementVideo,
@@ -52,12 +53,43 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return
         }
         const chunks = convertArrayToChunks(unplayableVideoData, 5)
-        chunks.forEach(messageChunk => getPlaylistDataFromApi(messageChunk))
+        chunks.forEach(messageChunk =>
+            getPlaylistDataFromArchiveApi(messageChunk),
+        )
     }
 
-    if (request.type === ACTIONS.FETCH_PLAYLIST_DATA_SUCCESS) {
+    if (request.type === ACTIONS.FETCH_ARCHIVED_PLAYLIST_DATA_SUCCESS) {
+        const playlistId = getPlaylistId()
+        handleUnplayableVideoRedirect(request.payload.playlistData.found)
+        handleUnplayableVideoDomUpdates(request.payload.playlistData.found)
+
+        const notFoundResponse = request.payload.playlistData.not_found
+        if (Object.keys(notFoundResponse).length) {
+            const unplayableVideoData = Object.keys(notFoundResponse).map(
+                key => {
+                    const notFoundData = notFoundResponse[key]
+                    return {
+                        videoId: notFoundData.videoId,
+                        index: key,
+                        url: `https://www.youtube.com/watch?v=${
+                            notFoundData.videoId
+                        }&list=${playlistId}&index=${key}`,
+                    }
+                },
+            )
+            getPlaylistDataFromWebSearchApi(unplayableVideoData)
+        } else {
+            storePlaylistDataInLocalStorage(
+                playlistId,
+                request.payload.playlistData,
+            )
+        }
+    }
+
+    if (request.type === ACTIONS.FETCH_WEB_SEARCHED_PLAYLIST_DATA_SUCCESS) {
+        const playlistId = getPlaylistId()
         storePlaylistDataInLocalStorage(
-            getPlaylistId(),
+            playlistId,
             request.payload.playlistData,
         )
         handleUnplayableVideoRedirect(request.payload.playlistData.found)

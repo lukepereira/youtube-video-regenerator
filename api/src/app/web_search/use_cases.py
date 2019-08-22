@@ -4,15 +4,6 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-def get_archived_video_title_from_web_search(unplayable_video_data):
-    search_string = medium_confidence_attempt(unplayable_video_data)
-
-    if search_string:
-        return search_string
-
-    return low_confidence_attempt(unplayable_video_data)
-
-
 def medium_confidence_attempt(unplayable_video_data):
     video_id = unplayable_video_data['videoId']
     number_of_results = 1

@@ -8,10 +8,13 @@ def get_web_searched_replacement_data(unplayable_video_data_array):
 
     for unplayable_video_data in unplayable_video_data_array:
         index = unplayable_video_data['index']
+        confidence_level = 'MEDIUM'
 
-        archived_video_title = use_cases.get_archived_video_title_from_web_search(
-            unplayable_video_data
-        )
+        archived_video_title = use_cases.medium_confidence_attempt(unplayable_video_data)
+
+        if not archived_video_title:
+            confidence_level = 'LOW'
+            archived_video_title = use_cases.low_confidence_attempt(unplayable_video_data)
 
         if not archived_video_title:
             replacement_video_not_found[index] = unplayable_video_data
@@ -19,6 +22,7 @@ def get_web_searched_replacement_data(unplayable_video_data_array):
 
         replacement_video_data = search_for_replacement_video(
             archived_video_title,
+            confidence_level,
         )
 
         if not replacement_video_data:

@@ -5,7 +5,9 @@ import {
     getCurrentVideoId,
     getPlaylistId,
     getUrlParams,
+    convertArrayToChunks,
     waitForElementToDisplay,
+    debounce,
 } from './helpers'
 
 import { ACTIONS } from './actions'
@@ -119,21 +121,6 @@ const getUnplayableVideoDataFromDOM = () => {
     return unplayableVideoData
 }
 
-const convertArrayToChunks = (list, chunkSize = 10) => {
-    if (!list.length) {
-        return []
-    }
-    var i,
-        j,
-        t,
-        chunks = []
-    for (i = 0, j = list.length; i < j; i += chunkSize) {
-        t = list.slice(i, i + chunkSize)
-        chunks.push(t)
-    }
-    return chunks
-}
-
 const getReplacementVideoRedirectURL = (replacementVideoData, index) => {
     const videoId = replacementVideoData.videoId
     const playlistId = getPlaylistId()
@@ -203,7 +190,9 @@ const handleUnplayableVideoDomUpdates = playlistData => {
             replacementVideoIndex - 1
         ]
         const container = unplayableVideoElement.closest('div#container')
-        container.style = 'border:1px solid green'
+
+        container.style = getBorderStyle(replacementVideoData)
+
         container.closest('a').href = url
         container.querySelector('a#thumbnail').href = url
         container.querySelector(
@@ -222,4 +211,14 @@ const getNextPlaylistVideoURL = currentIndex => {
     ]
     const container = nextVideo.closest('div#container')
     return container.closest('a').href
+}
+
+const getBorderStyle = replacementVideoData => {
+    const confidenceColourMap = Object.freeze({
+        HIGH: 'green',
+        MEDIUM: 'orange',
+        LOW: 'red',
+    })
+    const borderColour = confidenceColourMap[replacementVideoData.confidence]
+    return `border: 1px solid ${borderColour}`
 }

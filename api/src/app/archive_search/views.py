@@ -4,6 +4,7 @@ from ..youtube_search.views import search_for_replacement_video
 def get_archived_replacement_data(unplayable_video_data_array):
     replacement_video_found = {}
     replacement_video_not_found = {}
+    confidence_level = 'HIGH'
 
     for unplayable_video_data in unplayable_video_data_array:
         index = unplayable_video_data['index']
@@ -24,6 +25,7 @@ def get_archived_replacement_data(unplayable_video_data_array):
 
         replacement_video_data = search_for_replacement_video(
             archived_video_title,
+            confidence_level,
         )
 
         if not replacement_video_data:

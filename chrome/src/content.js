@@ -25,10 +25,9 @@ const runPlaylistScript = () => {
     if (!playlistId) {
         return
     }
-    if (!window.location.pathname.split('/')[1] === 'watch') {
-        return
+    if (window.location.pathname.split('/')[1] === 'watch') {
+        getPlaylistDataFromLocalStorage(playlistId)
     }
-    getPlaylistDataFromLocalStorage(playlistId)
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

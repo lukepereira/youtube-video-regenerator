@@ -33,7 +33,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 })
 
 chrome.browserAction.onClicked.addListener(tab => {
-    chrome.storage.local.clear()
+    // chrome.storage.local.clear()
     sendMessage({
         type: BACKGROUND_ACTIONS.CLICKED_BROWSER_ACTION,
         payload: {},
@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const tabId = sender.tab.id
 
     if (actions.DEBUG) {
-        alert(
+        console.log(
             'background action ' + type + ' ' + JSON.stringify(request.payload),
         )
     }
@@ -81,6 +81,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (type === actions.FETCH_ARCHIVED_PLAYLIST_DATA) {
+        //TODO: rate limit by identity.id, playlist, timestamp
+        // chrome.identity.getProfileUserInfo(identity => {})
         fetch(`${API_URL}${API_ENDPOINTS.archiveSearch}`, {
             method: 'POST',
             headers: {
@@ -168,8 +170,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (type === actions.REDIRECT_TO_URL) {
-        chrome.tabs.query({ active: true, currentWindow: true }, tab => {
-            chrome.tabs.update(tab.id, { url: request.payload.url })
-        })
+        if (tabId) {
+            chrome.tabs.update(tabId, { url: request.payload.url })
+        } else {
+            chrome.tabs.query({ active: true, currentWindow: true }, tab => {
+                chrome.tabs.update(tab.id, { url: request.payload.url })
+            })
+        }
     }
 })

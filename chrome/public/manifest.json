@@ -17,6 +17,8 @@
     "permissions": [
         "storage",
         "tabs",
+        "identity",
+        "identity.email",
         "https://us-central1-youtube-tools-245705.cloudfunctions.net/*"
     ],
     "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'"

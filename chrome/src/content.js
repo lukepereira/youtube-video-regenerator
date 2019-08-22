@@ -5,6 +5,7 @@ import {
     getCurrentVideoId,
     getPlaylistId,
     getUrlParams,
+    waitForElementToDisplay,
 } from './helpers'
 
 import { ACTIONS } from './actions'
@@ -25,13 +26,12 @@ const runPlaylistScript = () => {
     if (!window.location.pathname.split('/')[1] === 'watch') {
         return
     }
-    //TODO: wait for playlist elements to load on dom
     getPlaylistDataFromLocalStorage(playlistId)
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (ACTIONS.DEBUG) {
-        alert('content_script action ' + request.type, request.payload)
+        console.log('content_script action ' + request.type, request.payload)
     }
 
     if (request.type === ACTIONS.CLICKED_BROWSER_ACTION) {
@@ -155,13 +155,28 @@ const handleUnplayableVideoRedirect = playlistData => {
             replacementVideoData.videoId !== getCurrentVideoId()
         ) {
             redirectToReplacementVideo(replacementVideoRedirectURL)
-        }
-        if (currentIndex + 1 === replacementVideoIndex) {
+        } else if (currentIndex + 1 === replacementVideoIndex) {
             const video = document.querySelector('video')
 
             const handleRedirectEventListener = event => {
                 if (event.target.currentTime + 3 >= event.target.duration) {
                     redirectToReplacementVideo(replacementVideoRedirectURL)
+                    video.removeEventListener(
+                        'timeupdate',
+                        handleRedirectEventListener,
+                    )
+                }
+            }
+            video.addEventListener('timeupdate', handleRedirectEventListener)
+        } else if (
+            currentIndex === replacementVideoIndex &&
+            replacementVideoData.videoId === getCurrentVideoId()
+        ) {
+            const video = document.querySelector('video')
+            const nextVideoURL = getNextPlaylistVideoURL(currentIndex)
+            const handleRedirectEventListener = event => {
+                if (event.target.currentTime + 3 >= event.target.duration) {
+                    redirectToReplacementVideo(nextVideoURL)
                     video.removeEventListener(
                         'timeupdate',
                         handleRedirectEventListener,
@@ -199,4 +214,12 @@ const handleUnplayableVideoDomUpdates = playlistData => {
         container.querySelector('span#video-title').innerText = title
         container.querySelector('#unplayableText').style = 'display:none'
     })
+}
+
+const getNextPlaylistVideoURL = currentIndex => {
+    const nextVideo = document.querySelectorAll('span#index')[
+        parseInt(currentIndex)
+    ]
+    const container = nextVideo.closest('div#container')
+    return container.closest('a').href
 }

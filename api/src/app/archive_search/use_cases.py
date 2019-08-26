@@ -22,11 +22,10 @@ def get_archived_url(unplayable_video_data):
 
 
 def get_archived_video_title_from_archived_url(archived_url):
-    print('get_archived_video_title_from_archived_url')
+    response = requests.get(url=archived_url)
+    content = response.content
+    soup = BeautifulSoup(content, features="html.parser")
     try:
-        response = requests.get(url=archived_url)
-        content = response.content
-        soup = BeautifulSoup(content, features="html.parser")
         document_title_element = soup.findAll('title')[0]
         document_title = document_title_element.string
         length_of_placeholder = len(' - YouTube')

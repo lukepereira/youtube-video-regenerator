@@ -20,7 +20,7 @@ import {
     redirectToReplacementVideo,
 } from './messages'
 
-const runPlaylistScript = () => {
+export const runPlaylistScript = () => {
     const playlistId = getPlaylistId()
     if (!playlistId) {
         return
@@ -219,5 +219,5 @@ const getBorderStyle = replacementVideoData => {
         LOW: 'red',
     })
     const borderColour = confidenceColourMap[replacementVideoData.confidence]
-    return `border: 1px solid ${borderColour}`
+    return `border: 2px solid ${borderColour}; border-radius: 20px`
 }

@@ -38,6 +38,7 @@ chrome.browserAction.onClicked.addListener(tab => {
         type: BACKGROUND_ACTIONS.CLICKED_BROWSER_ACTION,
         payload: {},
     })
+    // chrome.browserAction.setPopup({ tabId: tab.id, popup: 'index.html' })
 })
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

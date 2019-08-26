@@ -14,8 +14,8 @@ def medium_confidence_attempt(unplayable_video_data):
     response = requests.get(url=search_url)
     content = response.content
     soup = BeautifulSoup(content, features="html.parser")
-    result_elements = soup.select('div#main')[0].find_all(recursive=False)[3:3 + number_of_results]
     try:
+        result_elements = soup.select('div#main')[0].find_all(recursive=False)[3:3 + number_of_results]
         result_text = result_elements[0].find('a').find('div').text
         clean_result_text = result_text.split('- Youtu.be')[0].strip()
         return clean_result_text

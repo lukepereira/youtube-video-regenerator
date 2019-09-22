@@ -22,12 +22,11 @@ import {
 
 export const runPlaylistScript = () => {
     const playlistId = getPlaylistId()
-    if (!playlistId) {
+    if (!playlistId || window.location.pathname.split('/')[1] !== 'watch') {
         return
     }
-    if (window.location.pathname.split('/')[1] === 'watch') {
-        getPlaylistDataFromLocalStorage(playlistId)
-    }
+
+    getPlaylistDataFromLocalStorage(playlistId)
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -201,6 +200,9 @@ const handleUnplayableVideoDomUpdates = playlistData => {
 
         container.querySelector('span#video-title').innerText = title
         container.querySelector('#unplayableText').style = 'display:none'
+
+        container.onclick = () =>
+            (window.location = `https://www.youtube.com/${url}`)
     })
 }
 

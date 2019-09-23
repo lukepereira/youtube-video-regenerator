@@ -20,6 +20,8 @@ import {
     redirectToReplacementVideo,
 } from './messages'
 
+import { CONFIDENCE_RATINGS, CONFIDENCE_COLOUR_MAP } from './constants'
+
 export const runPlaylistScript = () => {
     const playlistId = getPlaylistId()
     if (!playlistId || window.location.pathname.split('/')[1] !== 'watch') {
@@ -178,6 +180,14 @@ const handleUnplayableVideoDomUpdates = playlistData => {
         const replacementVideoIndex = parseInt(playlistIndex)
         const replacementVideoData = playlistData[playlistIndex]
 
+        if (
+            !replacementVideoData ||
+            !replacementVideoData.videoId ||
+            replacementVideoData.confidence === CONFIDENCE_RATINGS.LOW
+        ) {
+            return
+        }
+
         const title = replacementVideoData.title
         const thumbnailUrl = replacementVideoData.thumbnailUrl
         const url = `/watch?v=${
@@ -215,11 +225,6 @@ const getNextPlaylistVideoURL = currentIndex => {
 }
 
 const getBorderStyle = replacementVideoData => {
-    const confidenceColourMap = Object.freeze({
-        HIGH: 'green',
-        MEDIUM: 'orange',
-        LOW: 'red',
-    })
-    const borderColour = confidenceColourMap[replacementVideoData.confidence]
+    const borderColour = CONFIDENCE_COLOUR_MAP[replacementVideoData.confidence]
     return `border: 2px solid ${borderColour}; border-radius: 20px`
 }

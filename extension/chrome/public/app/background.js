@@ -34,11 +34,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 chrome.browserAction.onClicked.addListener(tab => {
     // chrome.storage.local.clear()
+    // chrome.browserAction.setPopup({ tabId: tab.id, popup: 'index.html' })
     sendMessage({
         type: BACKGROUND_ACTIONS.CLICKED_BROWSER_ACTION,
         payload: {},
     })
-    // chrome.browserAction.setPopup({ tabId: tab.id, popup: 'index.html' })
 })
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -55,8 +55,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (type === actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE) {
         const playlistId = request.payload.playlistId
         chrome.storage.local.get([playlistId], result => {
-            // TODO check timestamp
-            if (result && result[playlistId]) {
+            if (
+                !result ||
+                !result[playlistId] ||
+                !result[playlistId].expires ||
+                (result[playlistId].expires &&
+                    result[playlistId].expires < Date.now())
+            ) {
+                sendMessage(
+                    {
+                        type:
+                            actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_ERROR,
+                        payload: {},
+                    },
+                    tabId,
+                )
+            } else {
                 sendMessage(
                     {
                         type:
@@ -65,15 +79,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         payload: {
                             playlistData: result[playlistId],
                         },
-                    },
-                    tabId,
-                )
-            } else {
-                sendMessage(
-                    {
-                        type:
-                            actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_ERROR,
-                        payload: {},
                     },
                     tabId,
                 )
@@ -132,16 +137,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (type === actions.STORE_PLAYLIST_DATA) {
-        //TODO: store timestamp and calculate expiration of 3 hour
         //TODO: remove key from not_found if it appears in found
         const playlistId = request.payload.playlistId
         const newPlaylistData = request.payload.playlistData
+        const expires = new Date(Date.now() + 86400 * 1000).getTime()
         chrome.storage.local.get([playlistId], result => {
             const existingData = result[playlistId]
             const existingFound = (existingData && existingData.found) || {}
             const existingNotFound =
                 (existingData && existingData.not_found) || {}
             const mergedData = {
+                expires,
                 found: {
                     ...existingFound,
                     ...newPlaylistData.found,

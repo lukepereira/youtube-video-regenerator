@@ -2,6 +2,7 @@
 node_modules
 coverage
 build
+build.zip
 
 .DS_Store
 .env.local

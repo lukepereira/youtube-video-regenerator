@@ -4,6 +4,8 @@ const BACKGROUND_ACTIONS = Object.freeze({
 })
 
 const API_URL = 'https://us-central1-youtube-tools-245705.cloudfunctions.net/'
+const CWS_LICENSE_API_URL =
+    'https://www.googleapis.com/chromewebstore/v1.1/userlicenses/'
 
 const API_ENDPOINTS = Object.freeze({
     archiveSearch: 'archive_search',
@@ -50,6 +52,45 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log(
             'background action ' + type + ' ' + JSON.stringify(request.payload),
         )
+    }
+
+    if (type === actions.GET_OAUTH_TOKEN) {
+        // In non-interactive mode, if an authorization were needed, calling the getAuthToken method will return error.
+        chrome.identity.getAuthToken({ interactive: true }, token => {
+            sendMessage(
+                {
+                    type: actions.GET_OAUTH_TOKEN_SUCCESS,
+                    payload: {
+                        token,
+                    },
+                },
+                tabId,
+            )
+        })
+    }
+
+    if (type === actions.GET_LICENSE) {
+        //TODO: move validation to backend API
+        const options = {
+            headers: {
+                Authorization: 'Bearer ' + token,
+            },
+        }
+        const url = CWS_LICENSE_API_URL + chrome.runtime.id
+        fetch(url, options)
+            .then(response => response.json())
+            .then(response => {
+                // chrome.storage.local.set('license', response)
+                sendMessage(
+                    {
+                        type: actions.GET_LICENSE_SUCCESS,
+                        payload: {
+                            license: response,
+                        },
+                    },
+                    tabId,
+                )
+            })
     }
 
     if (type === actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE) {

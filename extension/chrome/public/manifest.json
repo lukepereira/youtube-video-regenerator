@@ -1,7 +1,8 @@
 {
     "short_name": "YouTube™ Video Regenerator",
     "name": "YouTube™ Video Regenerator",
-    "version": "0.0.1",
+    "description": "YouTube™ Video Regenerator is an extension for replacing deleted or unavailable videos.",
+    "version": "0.0.2",
     "manifest_version": 2,
     "background": {
         "scripts": ["app/background.js"]

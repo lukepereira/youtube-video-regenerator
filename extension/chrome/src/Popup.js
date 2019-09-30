@@ -2,16 +2,16 @@ import React from 'react'
 import './Popup.scss'
 import { runPlaylistScript } from './content'
 
-const Popup = () => (
-    <div className="Popup">
-        <label className="menu">
-            <input type="checkbox" checked />
-            <div>
-                <span />
-                <span />
-            </div>
-        </label>
-    </div>
-)
+const Popup = () => {
+    return (
+        <div className="Popup">
+            <div className="Header" />
+            <div />
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </div>
+    )
+}
 
 export default Popup

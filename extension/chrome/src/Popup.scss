@@ -1,7 +1,37 @@
 .Popup {
-    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     background: #f5f9ff;
+    color: #999;
+    width: 200px;
+    padding: 10px;
+    margin: auto;
+    font-family: 'Segoe UI', Candara, 'Bitstream Vera Sans', 'DejaVu Sans',
+        'Bitstream Vera Sans', 'Trebuchet MS', Verdana, 'Verdana Ref',
+        sans-serif;
+    text-align: center;
+    border-radius: 4px;
+    background: white;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+}
+
+ul,
+li,
+li a {
+    list-style: none;
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+li a {
+    padding: 5px;
+    color: #888;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+li a:hover,
+li a:focus {
+    background: #1abc9c;
+    color: #fff;
 }

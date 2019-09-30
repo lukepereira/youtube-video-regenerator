@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/lukepereira/youtube-playlist-healer/common/writers"
+	"github.com/lukepereira/youtube-video-regenerator/common/writers"
 )
 
 func TestOutputMessage(t *testing.T) {

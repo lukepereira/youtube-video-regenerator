@@ -1,1 +1,1 @@
-module github.com/lukepereira/youtube-playlist-healer/common
+module github.com/lukepereira/youtube-video-regenerator/common

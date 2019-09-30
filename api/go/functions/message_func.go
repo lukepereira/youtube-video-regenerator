@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/lukepereira/youtube-playlist-healer/common/writers"
+	"github.com/lukepereira/youtube-video-regenerator/common/writers"
 )
 
 func OutputMessage(w http.ResponseWriter, r *http.Request) {

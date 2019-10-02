@@ -1,54 +1,46 @@
 package functions
 
 import (
-	"fmt"
 	"net/http"
 	"sync"
 )
 
 func ArchiveSearch(w http.ResponseWriter, r *http.Request) {
-	var (
-		requestedVideoData = parseRequest(w, r)
-		found              = make(chan FoundVideo)
-		missing            = make(chan MissingVideo)
-		finished           = make(chan struct{})
-		wg                 sync.WaitGroup
-	)
-
-	go func() {
-		sendReponse(w, found, missing)
-		close(finished)
-	}()
-
-	for _, videoData := range requestedVideoData {
-		wg.Add(1)
-		go findReplacementVideo(w, &wg, videoData, found, missing)
-	}
-
-	wg.Wait()
-	close(found)
-	close(missing)
-	<-finished
+	concurrentSearch(w, r, waybackSearch)
 }
 
-func findReplacementVideo(
+func waybackSearch(
 	w http.ResponseWriter,
 	wg *sync.WaitGroup,
-	mv MissingVideo,
 	found chan<- FoundVideo,
-	missing chan<- MissingVideo,
+	mv MissingVideo,
 ) {
 	defer wg.Done()
 
-	videoId := getFieldString(&mv, "VideoId")
-	videoData, _ := requestArchivedData(videoId)
-	fmt.Println("findReplacementVideo", videoData)
+	missingVideoId := getFieldString(&mv, "VideoId")
 
-	found <- FoundVideo{
-		Confidence:   "a",
-		ThumbnailUrl: "b",
-		Title:        "c",
-		VideoId:      "d",
+	snapshotUrl, err := getSnapshotUrl(missingVideoId)
+	if err != nil {
+		return
 	}
 
+	foundVideoTitle, err := getVideoTitleFromSnapshot(snapshotUrl)
+	if err != nil {
+		return
+	}
+
+	foundVideoId, err := getVideoIdFromYoutube(foundVideoTitle)
+	if err != nil {
+		return
+	}
+
+	foundThumbnailUrl := getThumbnailUrl(foundVideoId)
+
+	FoundVideoData := FoundVideo{
+		Confidence:   "HIGH",
+		ThumbnailUrl: foundThumbnailUrl,
+		Title:        foundVideoTitle,
+		VideoId:      foundVideoId,
+	}
+	found <- FoundVideoData
 }

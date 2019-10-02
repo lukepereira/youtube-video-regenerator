@@ -2,7 +2,6 @@ package functions
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"reflect"
@@ -32,29 +31,4 @@ func parseRequest(w http.ResponseWriter, r *http.Request) []MissingVideo {
 		handleResponseError(w, err)
 	}
 	return requestedVideoData
-}
-
-func requestArchivedData(id string) (string, error) {
-	type Closest struct {
-		Url string `json:"url"`
-	}
-	type ArchiveSnapshot struct {
-		Closest Closest `json:"closest"`
-	}
-	type WaybackResponse struct {
-		ArchiveSnapshot ArchiveSnapshot `json:"archived_snapshots"`
-	}
-	var snapshot WaybackResponse
-
-	youtubeUrl := fmt.Sprintf("https://www.youtube.com/watch?v=%s", id)
-	waybackUrl := fmt.Sprintf("http://archive.org/wayback/available?url=%s", youtubeUrl)
-	resp, _ := http.Get(waybackUrl)
-	body, _ := ioutil.ReadAll(resp.Body)
-	err := json.Unmarshal(body, &snapshot)
-	if err != nil {
-		return "", err
-	}
-
-	fmt.Println("requestArchivedData", snapshot.ArchiveSnapshot.Closest.Url)
-	return "OK", nil
 }

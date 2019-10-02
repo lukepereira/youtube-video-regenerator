@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -38,21 +38,46 @@ func handleResponseMessage(w http.ResponseWriter, message string) {
 	w.Write([]byte(jsonString))
 }
 
-func sendReponse(
+func sendResponse(
 	w http.ResponseWriter,
 	found <-chan FoundVideo,
-	missing <-chan MissingVideo,
+	allVideos []MissingVideo,
 ) {
 	var (
 		foundVideos   []FoundVideo
-		missingVideos []MissingVideo
+		missingVideos = allVideos[:0]
 	)
+
 	for n := range found {
 		foundVideos = append(foundVideos, n)
-		fmt.Println(n)
 	}
-	for n := range missing {
-		missingVideos = append(missingVideos, n)
-		fmt.Println(n)
+
+	for _, x := range allVideos {
+		if !sliceConainsVideo(foundVideos, x) {
+			missingVideos = append(missingVideos, x)
+		}
 	}
+
+	response := ResponseData{
+		Found:    foundVideos,
+		NotFound: missingVideos,
+	}
+
+	bytesValue, err := json.Marshal(response)
+	if err != nil {
+		handleResponseError(w, err)
+	}
+
+	jsonString := string(bytesValue)
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(jsonString))
+}
+
+func sliceConainsVideo(fv []FoundVideo, mv MissingVideo) bool {
+	for _, x := range fv {
+		if x.VideoId == mv.VideoId {
+			return true
+		}
+	}
+	return false
 }

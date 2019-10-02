@@ -8,7 +8,7 @@ import (
 )
 
 func TestArchiveSearch(t *testing.T) {
-	videoData := []byte(`[{"index": "2" , "videoId": "abc", "url": "1234"}]`)
+	videoData := []byte(`[{"index": "2" , "videoId": "cXb_yyVEq0Q", "url": "1234"}]`)
 	r, _ := http.NewRequest("POST", "", bytes.NewBuffer(videoData))
 	w := httptest.NewRecorder()
 
@@ -21,7 +21,7 @@ func TestArchiveSearch(t *testing.T) {
 	}
 
 	// check there was no error getting the body
-	// body, err := ioutil.ReadAll(resp.Body)
+	// _, err := ioutil.ReadAll(resp.Body)
 	// if err != nil {
 	// 	t.Fatal(err)
 	// }

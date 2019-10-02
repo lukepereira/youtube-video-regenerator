@@ -18,6 +18,7 @@ func waybackSearch(
 	defer wg.Done()
 
 	missingVideoId := getFieldString(&mv, "VideoId")
+	index := getFieldString(&mv, "Index")
 
 	snapshotUrl, err := getSnapshotUrl(missingVideoId)
 	if err != nil {
@@ -41,6 +42,7 @@ func waybackSearch(
 		ThumbnailUrl: foundThumbnailUrl,
 		Title:        foundVideoTitle,
 		VideoId:      foundVideoId,
+		Index:        index,
 	}
 	found <- FoundVideoData
 }

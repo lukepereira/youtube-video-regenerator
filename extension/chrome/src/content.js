@@ -66,20 +66,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         handleUnplayableVideoDomUpdates(request.payload.playlistData.found)
 
         const notFoundResponse = request.payload.playlistData.not_found
-        if (Object.keys(notFoundResponse).length) {
-            const unplayableVideoData = Object.keys(notFoundResponse).map(
-                key => {
-                    const notFoundData = notFoundResponse[key]
-                    return {
-                        videoId: notFoundData.videoId,
-                        index: key,
-                        url: `https://www.youtube.com/watch?v=${
-                            notFoundData.videoId
-                        }&list=${playlistId}&index=${key}`,
-                    }
-                },
-            )
-            getPlaylistDataFromWebSearchApi(unplayableVideoData)
+        if (notFoundResponse.length) {
+            getPlaylistDataFromWebSearchApi(notFoundResponse)
 
             storePlaylistDataInLocalStorage(playlistId, {
                 found: request.payload.playlistData.found,
@@ -129,9 +117,17 @@ const getReplacementVideoRedirectURL = (replacementVideoData, index) => {
 
 const handleUnplayableVideoRedirect = playlistData => {
     const currentIndex = getCurrentIndex()
-    Object.keys(playlistData).forEach(playlistIndex => {
-        const replacementVideoIndex = parseInt(playlistIndex)
-        const replacementVideoData = playlistData[replacementVideoIndex]
+    playlistData.forEach(replacementVideoData => {
+        if (
+            !replacementVideoData ||
+            !replacementVideoData.videoId ||
+            replacementVideoData.confidence === CONFIDENCE_RATINGS.LOW
+        ) {
+            return
+        }
+
+        const replacementVideoIndex = parseInt(replacementVideoData.index)
+
         const replacementVideoRedirectURL = getReplacementVideoRedirectURL(
             replacementVideoData,
             replacementVideoIndex,
@@ -176,10 +172,7 @@ const handleUnplayableVideoRedirect = playlistData => {
 }
 
 const handleUnplayableVideoDomUpdates = playlistData => {
-    Object.keys(playlistData).forEach(playlistIndex => {
-        const replacementVideoIndex = parseInt(playlistIndex)
-        const replacementVideoData = playlistData[playlistIndex]
-
+    playlistData.forEach(replacementVideoData => {
         if (
             !replacementVideoData ||
             !replacementVideoData.videoId ||
@@ -187,6 +180,8 @@ const handleUnplayableVideoDomUpdates = playlistData => {
         ) {
             return
         }
+
+        const replacementVideoIndex = parseInt(replacementVideoData.index)
 
         const title = replacementVideoData.title
         const thumbnailUrl = replacementVideoData.thumbnailUrl

@@ -13,6 +13,7 @@ type FoundVideo struct {
 	ThumbnailUrl string `json:"thumbnailUrl"`
 	Title        string `json:"title"`
 	VideoId      string `json:"videoId"`
+	Index        string `json:"index"`
 }
 
 type ResponseData struct {

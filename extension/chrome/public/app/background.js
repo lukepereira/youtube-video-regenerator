@@ -8,8 +8,8 @@ const CWS_LICENSE_API_URL =
     'https://www.googleapis.com/chromewebstore/v1.1/userlicenses/'
 
 const API_ENDPOINTS = Object.freeze({
-    archiveSearch: 'archive_search',
-    webSearch: 'web_search',
+    archiveSearch: 'ArchiveSearch', //'archive_search',
+    webSearch: 'WebSearch', //'web_search',
 })
 
 const sendMessage = (message, tabId) => {

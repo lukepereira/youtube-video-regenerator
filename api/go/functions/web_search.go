@@ -1,27 +1,44 @@
 package functions
 
 import (
-	"fmt"
 	"net/http"
-
-	"github.com/lukepereira/youtube-video-regenerator/common/writers"
+	"sync"
 )
 
 func WebSearch(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		handleResponseError(w, err)
-		return
-	}
-	fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
+	concurrentSearch(w, r, webSearch)
+}
 
-	message := "a"
-	jw := writers.NewMessageWriter(message)
-	jsonString, err := jw.JSONString()
+func webSearch(
+	w http.ResponseWriter,
+	wg *sync.WaitGroup,
+	found chan<- FoundVideo,
+	mv MissingVideo,
+) {
+	defer wg.Done()
 
+	missingVideoId := getFieldString(&mv, "VideoId")
+	index := getFieldString(&mv, "Index")
+
+	url := getGoogleSearchUrl(missingVideoId)
+	foundVideoTitle, err := getVideoTitleWebSearch(url)
 	if err != nil {
-		handleResponseError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(jsonString))
+
+	foundVideoId, err := getVideoIdFromYoutube(foundVideoTitle)
+	if err != nil {
+		return
+	}
+
+	foundThumbnailUrl := getThumbnailUrl(foundVideoId)
+
+	FoundVideoData := FoundVideo{
+		Confidence:   "LOW",
+		ThumbnailUrl: foundThumbnailUrl,
+		Title:        foundVideoTitle,
+		VideoId:      foundVideoId,
+		Index:        index,
+	}
+	found <- FoundVideoData
 }

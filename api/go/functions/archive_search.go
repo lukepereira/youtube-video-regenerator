@@ -6,10 +6,10 @@ import (
 )
 
 func ArchiveSearch(w http.ResponseWriter, r *http.Request) {
-	concurrentSearch(w, r, waybackSearch)
+	concurrentSearch(w, r, archiveSearch, 0)
 }
 
-func waybackSearch(
+func archiveSearch(
 	w http.ResponseWriter,
 	wg *sync.WaitGroup,
 	found chan<- FoundVideo,
@@ -24,17 +24,14 @@ func waybackSearch(
 	if err != nil {
 		return
 	}
-
 	foundVideoTitle, err := getVideoTitleFromSnapshot(snapshotUrl)
 	if err != nil {
 		return
 	}
-
 	foundVideoId, err := getVideoIdFromYoutube(foundVideoTitle)
 	if err != nil {
 		return
 	}
-
 	foundThumbnailUrl := getThumbnailUrl(foundVideoId)
 
 	FoundVideoData := FoundVideo{
@@ -44,5 +41,6 @@ func waybackSearch(
 		VideoId:      foundVideoId,
 		Index:        index,
 	}
+
 	found <- FoundVideoData
 }

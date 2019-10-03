@@ -45,7 +45,7 @@ func sendResponse(
 	allVideos []MissingVideo,
 ) {
 	var (
-		foundVideos   []FoundVideo
+		foundVideos   = make([]FoundVideo, 0)
 		missingVideos = allVideos[:0]
 	)
 
@@ -68,15 +68,15 @@ func sendResponse(
 	if err != nil {
 		handleResponseError(w, err)
 	}
-
 	jsonString := string(bytesValue)
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(jsonString))
 }
 
 func sliceConainsVideo(fv []FoundVideo, mv MissingVideo) bool {
 	for _, x := range fv {
-		if x.VideoId == mv.VideoId {
+		if x.Index == mv.Index {
 			return true
 		}
 	}

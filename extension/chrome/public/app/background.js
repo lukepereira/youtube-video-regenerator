@@ -7,9 +7,14 @@ const API_URL = 'https://us-central1-youtube-tools-245705.cloudfunctions.net/'
 const CWS_LICENSE_API_URL =
     'https://www.googleapis.com/chromewebstore/v1.1/userlicenses/'
 
-const API_ENDPOINTS = Object.freeze({
-    archiveSearch: 'ArchiveSearch', //'archive_search',
-    webSearch: 'WebSearch', //'web_search',
+const GO_API_ENDPOINTS = Object.freeze({
+    archiveSearch: 'ArchiveSearch',
+    webSearch: 'WebSearch',
+})
+
+const PYTHON_API_ENDPOINTS = Object.freeze({
+    archiveSearch: 'archive_search',
+    webSearch: 'web_search',
 })
 
 const sendMessage = (message, tabId) => {
@@ -130,7 +135,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (type === actions.FETCH_ARCHIVED_PLAYLIST_DATA) {
         //TODO: rate limit by identity.id, playlist, timestamp
         // chrome.identity.getProfileUserInfo(identity => {})
-        fetch(`${API_URL}${API_ENDPOINTS.archiveSearch}`, {
+        fetch(`${API_URL}${GO_API_ENDPOINTS.archiveSearch}`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -154,7 +159,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (type === actions.FETCH_WEB_SEARCHED_PLAYLIST_DATA) {
-        fetch(`${API_URL}${API_ENDPOINTS.webSearch}`, {
+        fetch(`${API_URL}${GO_API_ENDPOINTS.webSearch}`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -178,25 +183,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (type === actions.STORE_PLAYLIST_DATA) {
-        //TODO: remove key from not_found if it appears in found
         const playlistId = request.payload.playlistId
         const newPlaylistData = request.payload.playlistData
         const expires = new Date(Date.now() + 86400 * 1000).getTime()
         chrome.storage.local.get([playlistId], result => {
             const existingData = result[playlistId]
-            const existingFound = (existingData && existingData.found) || {}
+            const existingFound = (existingData && existingData.found) || []
             const existingNotFound =
-                (existingData && existingData.not_found) || {}
+                (existingData && existingData.not_found) || []
             const mergedData = {
                 expires,
-                found: {
-                    ...existingFound,
-                    ...newPlaylistData.found,
-                },
-                not_found: {
-                    ...existingNotFound,
-                    ...newPlaylistData.not_found,
-                },
+                found: [...existingFound, ...newPlaylistData.found],
+                not_found: [...existingNotFound, ...newPlaylistData.not_found],
             }
             chrome.storage.local.set(
                 {

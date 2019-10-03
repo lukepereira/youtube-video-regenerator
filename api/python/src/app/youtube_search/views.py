@@ -1,7 +1,7 @@
 from . import use_cases
 
 
-def search_for_replacement_video(video_title, confidence_level = 'HIGH'):
+def search_for_replacement_video(video_title, index, confidence_level = 'HIGH', ):
     query = use_cases.get_search_query(video_title)
     youtube_search_url = use_cases.get_search_url(query)
     soup = use_cases.get_bs4_soup(youtube_search_url)
@@ -12,4 +12,5 @@ def search_for_replacement_video(video_title, confidence_level = 'HIGH'):
         'videoId': video_id,
         'thumbnailUrl': thumbnail_url,
         'confidence': confidence_level,
+        'index': index,
     }

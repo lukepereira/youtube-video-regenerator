@@ -6,7 +6,7 @@ import (
 )
 
 func WebSearch(w http.ResponseWriter, r *http.Request) {
-	concurrentSearch(w, r, webSearch)
+	concurrentSearch(w, r, webSearch, 1)
 }
 
 func webSearch(
@@ -34,7 +34,7 @@ func webSearch(
 	foundThumbnailUrl := getThumbnailUrl(foundVideoId)
 
 	FoundVideoData := FoundVideo{
-		Confidence:   "LOW",
+		Confidence:   "MEDIUM",
 		ThumbnailUrl: foundThumbnailUrl,
 		Title:        foundVideoTitle,
 		VideoId:      foundVideoId,

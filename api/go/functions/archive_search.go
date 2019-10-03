@@ -6,7 +6,7 @@ import (
 )
 
 func ArchiveSearch(w http.ResponseWriter, r *http.Request) {
-	concurrentSearch(w, r, archiveSearch, 0)
+	concurrentSearch(w, r, archiveSearch, 1)
 }
 
 func archiveSearch(

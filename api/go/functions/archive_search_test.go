@@ -7,11 +7,8 @@ import (
 	"testing"
 )
 
-//s--IkNqI9og missing vid
-//"hP2f5sq_nm4" Youtube title
-
 func TestArchiveSearch(t *testing.T) {
-	videoData := []byte(`[{"index": "2" , "videoId": "hP2f5sq_nm4", "url": "1234"}]`)
+	videoData := []byte(`[{"index": "2" , "videoId": "hPSYdqvcH88", "url": "1234"}]`)
 	r, _ := http.NewRequest("POST", "", bytes.NewBuffer(videoData))
 	w := httptest.NewRecorder()
 

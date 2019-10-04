@@ -8,7 +8,7 @@ import (
 )
 
 func TestWebSearch(t *testing.T) {
-	videoData := []byte(`[{"index": "2" , "videoId": "XF1DoVdHM9M", "url": "1234"}, {"index": "2" , "videoId": "HXBD2o5lO1k", "url": "1234"}]`)
+	videoData := []byte(`[{"index": "2" , "videoId": "cXb_yyVEq0Q", "url": "1234"}]`)
 	r, _ := http.NewRequest("POST", "", bytes.NewBuffer(videoData))
 	w := httptest.NewRecorder()
 

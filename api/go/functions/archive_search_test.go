@@ -8,7 +8,7 @@ import (
 )
 
 func TestArchiveSearch(t *testing.T) {
-	videoData := []byte(`[{"index": "2" , "videoId": "hPSYdqvcH88", "url": "1234"}]`)
+	videoData := []byte(`[{"index": "2" , "videoId": "cXb_yyVEq0Q", "url": "1234"}]`)
 	r, _ := http.NewRequest("POST", "", bytes.NewBuffer(videoData))
 	w := httptest.NewRecorder()
 

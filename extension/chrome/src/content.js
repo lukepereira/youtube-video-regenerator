@@ -71,7 +71,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
             storePlaylistDataInLocalStorage(playlistId, {
                 found: request.payload.playlistData.found,
-                not_found: {},
+                not_found: [],
             })
         } else {
             storePlaylistDataInLocalStorage(

@@ -18,19 +18,19 @@ func getVideoIdFromYoutube(videoTitle string) (string, error) {
 
 	doc := soup.HTMLParse(resp)
 
-	resultContainer := doc.Find("div", "id", "results")
-	err = resultContainer.Error
+	container := doc.Find("div", "id", "results")
+	err = container.Error
 	if err != nil {
 		return "", err
 	}
 
-	firstResult := resultContainer.Find("ol", "class", "item-section")
-	err = firstResult.Error
+	resultSection := container.Find("ol", "class", "item-section")
+	err = resultSection.Error
 	if err != nil {
 		return "", err
 	}
 
-	videoId := firstResult.Find("div").Attrs()["data-context-item-id"]
+	videoId := resultSection.Find("div", "class", "yt-lockup-video").Attrs()["data-context-item-id"]
 
 	return videoId, nil
 }

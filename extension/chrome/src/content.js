@@ -22,11 +22,12 @@ import {
 
 import { CONFIDENCE_RATINGS, CONFIDENCE_COLOUR_MAP } from './constants'
 
-export const runPlaylistScript = () => {
+export const runPlaylistScript = async () => {
     const playlistId = getPlaylistId()
     if (!playlistId || window.location.pathname.split('/')[1] !== 'watch') {
         return
     }
+    await waitForElementToDisplay(`a[href="/playlist?list=${getPlaylistId()}"]`)
 
     getPlaylistDataFromLocalStorage(playlistId)
 }
@@ -51,6 +52,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.type === ACTIONS.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE_ERROR) {
         const unplayableVideoData = getUnplayableVideoDataFromDOM()
+
         if (!unplayableVideoData.length) {
             return
         }
@@ -94,9 +96,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 const getUnplayableVideoDataFromDOM = () => {
     const unplayableVideoData = []
-    const unplayableVideos = document.querySelectorAll(
-        '#unplayableText:not([hidden])',
-    )
+    // handle mini-player (selector: ytd-playlist-panel-renderer#playlist.style-scope.ytd-miniplayer)
+    const unplayableVideos = document
+        .querySelector(`a[href="/playlist?list=${getPlaylistId()}"]`)
+        .closest('#playlist')
+        .querySelectorAll('#unplayableText:not([hidden])')
+
     unplayableVideos.forEach(unplayabledVideoElement => {
         const unplayableVideoUrl = unplayabledVideoElement.closest('a').href
         const videoData = {

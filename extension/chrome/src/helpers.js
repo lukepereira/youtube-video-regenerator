@@ -33,14 +33,25 @@ export const convertArrayToChunks = (list, chunkSize = 10) => {
     return chunks
 }
 
-export const waitForElementToDisplay = (selector, callback) => {
-    if (document.querySelector(selector) != null) {
-        return callback(document.querySelector(selector))
-    } else {
-        setTimeout(function() {
-            waitForElementToDisplay(selector, 1000)
-        }, callback)
-    }
+export const waitForElementToDisplay = selector => {
+    return new Promise((resolve, reject) => {
+        let el = document.querySelector(selector)
+        if (el) {
+            resolve(el)
+        } else {
+            new MutationObserver((mutationRecords, observer) => {
+                Array.from(document.querySelectorAll(selector)).forEach(
+                    element => {
+                        resolve(element)
+                        observer.disconnect()
+                    },
+                )
+            }).observe(document.documentElement, {
+                childList: true,
+                subtree: true,
+            })
+        }
+    })
 }
 
 export const debounce = (func, wait, immediate) => {

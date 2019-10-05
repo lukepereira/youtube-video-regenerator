@@ -32,10 +32,13 @@ const sendMessage = (message, tabId) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete') {
-        sendMessage({
-            type: BACKGROUND_ACTIONS.TAB_URL_UPDATED,
-            payload: { tabId, changeInfo, tab },
-        })
+        sendMessage(
+            {
+                type: BACKGROUND_ACTIONS.TAB_URL_UPDATED,
+                payload: { tabId, changeInfo, tab },
+            },
+            tabId,
+        )
     }
 })
 

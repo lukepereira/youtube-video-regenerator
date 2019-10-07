@@ -2,7 +2,7 @@
     "short_name": "YouTube™ Video Regenerator",
     "name": "YouTube™ Video Regenerator",
     "description": "YouTube™ Video Regenerator is an extension for replacing deleted or unavailable videos.",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "manifest_version": 2,
     "background": {
         "scripts": ["app/background.js"]
@@ -19,7 +19,6 @@
         "storage",
         "tabs",
         "identity",
-        "identity.email",
         "https://us-central1-youtube-tools-245705.cloudfunctions.net/*"
     ],
     "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkTGqknsNVjDTAGreAj7ra0mYSgj21l85PNE/8OwGfx94SwvYZ051IudVvnjWd8gPdQuZf3cr5iXTbwkIV69Nzhw2QQjZ/M4gVL2tpfHUckde1cex7PAGQswhJgt/gwRBxqtQ64XgoeqrxqmpGQylYNJXXJv8nVT7jHbmcwiFxv6C5we5f5nezMxVTyRiMreJccqsARW+mBazPPlxPSycNtXmdC2rRAtXFxD6FmpZt44WJGTZ5bIzVsJR+alwn7LCMu73TAOs0FXfiASnNnIEMa/EINKt+SeMcbS4Hp7jc6+jmsTxwfYcrvAX2bUEqsH6dxXlpjzna0OPNfXQM5hHVwIDAQAB",

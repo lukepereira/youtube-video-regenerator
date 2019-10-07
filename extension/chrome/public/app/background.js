@@ -62,43 +62,37 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         )
     }
 
-    if (type === actions.GET_OAUTH_TOKEN) {
-        // In non-interactive mode, if an authorization were needed, calling the getAuthToken method will return error.
-        chrome.identity.getAuthToken({ interactive: true }, token => {
-            sendMessage(
-                {
-                    type: actions.GET_OAUTH_TOKEN_SUCCESS,
-                    payload: {
-                        token,
-                    },
-                },
-                tabId,
-            )
-        })
+    if (type === actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE) {
+        // chrome.storage.local.get(['license'], result => {
+        //     if (result.license.)
+        // }
     }
 
-    if (type === actions.GET_LICENSE) {
-        //TODO: move validation to backend API
-        const options = {
-            headers: {
-                Authorization: 'Bearer ' + token,
-            },
-        }
-        const url = CWS_LICENSE_API_URL + chrome.runtime.id
-        fetch(url, options)
-            .then(response => response.json())
-            .then(response => {
-                // chrome.storage.local.set('license', response)
-                sendMessage(
-                    {
-                        type: actions.GET_LICENSE_SUCCESS,
-                        payload: {
-                            license: response,
+    if (type === actions.GET_LICENSE_FROM_API) {
+        chrome.identity.getAuthToken({ interactive: true }, token => {
+            const options = {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            }
+            const url = CWS_LICENSE_API_URL + chrome.runtime.id
+            const expires = new Date(Date.now() + 86400 * 1000).getTime()
+
+            fetch(url, options)
+                .then(response => response.json())
+                .then(response => {
+                    chrome.storage.local.set({ license: { expires, response } })
+                    sendMessage(
+                        {
+                            type: actions.GET_LICENSE_FROM_API_SUCCESS,
+                            payload: {
+                                license: response,
+                            },
                         },
-                    },
-                    tabId,
-                )
-            })
+                        tabId,
+                    )
+                })
+        })
     }
 
     if (type === actions.GET_PLAYLIST_DATA_FROM_LOCAL_STORAGE) {

@@ -1,8 +1,5 @@
 ## Youtube video regenerator
 
-[YouTube™ Video Regenerator](https://chrome.google.com/webstore/detail/ecbemdelpoogolgfpfligajnmgbimjid) is an extension for replacing deleted or unavailable videos.
-Over time, many videos on YouTube become unavailable because they are deleted or become restricted. This extension replaces those videos with working ones to give users a less disrupted experience.
-
 When viewing any page on Youtube, YVR will notice unavailable videos, search for possible replacements using the Wayback Machine then update the page content with a working video.
 
 **There is no tracking of any user data.**

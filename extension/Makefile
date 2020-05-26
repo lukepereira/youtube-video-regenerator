@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	(cd ./chrome && npm run build)
+	(cd ./chrome && npm install && npm run build)
 
 .PHONY: zip
 zip:

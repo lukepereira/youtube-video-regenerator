@@ -1,7 +1,7 @@
 {
-    "short_name": "YouTube™ Video Regenerator",
-    "name": "YouTube™ Video Regenerator",
-    "description": "YouTube™ Video Regenerator is an extension for replacing deleted or unavailable videos.",
+    "short_name": "YouTube™ Video Patch",
+    "name": "YouTube™ Video Patch",
+    "description": "YouTube™ Video Patch is an extension for replacing deleted or unavailable videos.",
     "version": "0.0.3",
     "manifest_version": 2,
     "background": {

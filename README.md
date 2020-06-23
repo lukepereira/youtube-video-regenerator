@@ -2,7 +2,7 @@
 
 When viewing any page on Youtube, the extension will notice unavailable videos, search for the original video title using the Wayback Machine or other search engines and then update the page content with a re-uploaded video with the same title.
 
-**There is no tracking of any user data.**. The extension only targets URLs matching "https://www.youtube.com/*". See [here](extension/chrome/public/manifest.json).
+**There is no tracking of any user data.** The extension only targets URLs matching "https://www.youtube.com/*". .
 
 This extension is free to use, please [donate](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SCCDZQ7E3KUR6&currency_code=CAD&source=url)!
 

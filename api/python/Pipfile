@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 flask = "*"
-flask-cors = "==3.0.6"
+flask-cors = "==3.0.9"
 requests = "*"
 "beautifulsoup4" = "==4.7.1"
 
